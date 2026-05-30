@@ -1,0 +1,7 @@
+langchain
+langchain-groq
+qdrant-client
+fastembed
+docling
+streamlit
+python-dotenv

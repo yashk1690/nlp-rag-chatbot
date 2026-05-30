@@ -1,0 +1,17 @@
+# Virtual Environments
+venv/
+.venv/
+__pycache__/
+
+# Secrets
+.env
+
+# Local Databases
+qdrant_db/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE Settings
+.idea/

@@ -1,7 +1,15 @@
+
 langchain
 langchain-groq
 qdrant-client
 fastembed
-docling
 streamlit
 python-dotenv
+
+docling
+
+# Hardware Acceleration: Nvidia CUDA 12.8 for PyTorch
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+torchaudio==2.11.0+cu128

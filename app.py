@@ -23,7 +23,7 @@ def test_groq_connection():
     # 3. Send a test message to the LLM
     print("Sending test prompt to LLaMA 3...")
     response = llm.invoke(
-        "Hi LLaMA! nice to meet you, looking forward to working with you!!")
+        "hi llama, hi cutie , how are you?")
 
     # 4. Print the output
     print("\n--- Groq Response ---")

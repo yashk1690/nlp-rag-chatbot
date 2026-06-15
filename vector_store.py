@@ -1,8 +1,7 @@
-import os
 from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import MarkdownTextSplitter
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.vectorstores import Qdrant
+from langchain_text_splitters import MarkdownTextSplitter
 
 
 def build_database(markdown_path: str, collection_name: str):

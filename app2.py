@@ -28,7 +28,7 @@ def initialize_rag_pipeline():
     # B. Connect to your existing Qdrant Database
     vector_store = QdrantVectorStore.from_existing_collection(
         embedding=embeddings,
-        collection_name="sample_report_1",
+        collection_name="sample_report_2",
         path="qdrant_db"
     )
 

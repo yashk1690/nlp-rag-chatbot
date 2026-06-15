@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     # Research paper — high-res images, LaTeX formula decoding
     parse_heavy_multimodal(
-        "data/sample_report_3.pdf",
-        "data/sample_report_3_parsed.md",
+        "data/UGT.pdf",
+        "data/UGT_parsed.md",
         doc_type="novel",
     )

@@ -1,6 +1,6 @@
 from langchain_community.document_loaders import TextLoader
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
-from langchain_community.vectorstores import Qdrant
+from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import MarkdownTextSplitter
 
 
@@ -25,14 +25,12 @@ def build_database(markdown_path: str, collection_name: str):
     embeddings = FastEmbedEmbeddings()
 
     # 4. Save to your existing Qdrant folder
-    qdrant_path = "qdrant_db"  # Pointing to your existing folder
+    qdrant_path = "qdrant_db"
 
     print(f"Loading vectors into Qdrant collection: '{collection_name}'...")
 
-    # LangChain's Qdrant integration is smart:
-    # If the collection doesn't exist, it creates it.
-    # If it DOES exist (like in your mega-database scenario), it simply appends the new chunks to it!
-    qdrant = Qdrant.from_documents(
+    # --- NEW: Updated class name to QdrantVectorStore ---
+    qdrant = QdrantVectorStore.from_documents(
         documents=chunks,
         embedding=embeddings,
         path=qdrant_path,
@@ -45,10 +43,8 @@ def build_database(markdown_path: str, collection_name: str):
 
 
 if __name__ == "__main__":
-    md_file = "data/sample_report_2_parsed.md"
+    md_file = "data/sample_report_parsed.md"
 
-    # If you change this name to "mega_course_library" and run this script
-    # on 10 different files, they will all funnel into the same massive database!
-    target_collection = "sample_report_2"
+    target_collection = "sample_report_1"
 
     build_database(md_file, target_collection)

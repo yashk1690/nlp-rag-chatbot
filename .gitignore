@@ -8,6 +8,7 @@ __pycache__/
 
 # Local Databases
 qdrant_db/
+data/
 
 # OS Files
 .DS_Store

@@ -1,7 +1,6 @@
 import os
 import re
 import streamlit as st
-import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 from langchain_groq import ChatGroq
@@ -16,103 +15,138 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="DOCCHAT.exe",
-    page_icon="🟢",
+    page_title="Research Guide",
+    page_icon="🪶",
     layout="centered",
     initial_sidebar_state="expanded",
 )
 
-# ── Font + CSS ─────────────────────────────────────────────────────────────────
+# ── Fonts + CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* ══ Global: monospace everywhere ══ */
+:root {
+    --ink: #11141b;          /* page background — deep ink-navy, not pure black */
+    --panel: #181c25;        /* chat bubble / card background */
+    --panel-quiet: #0d1016;  /* sidebar / recessed surfaces */
+    --hairline: #2a2f3a;     /* hairline borders, like ruled paper */
+    --vellum: #e7e1cd;       /* primary text — warm parchment */
+    --slate: #8b93a3;        /* secondary / muted text */
+    --brass: #b9935c;        /* primary accent — aged brass */
+    --oxblood: #8a3140;      /* secondary accent — binding red */
+    --sepia: #c9b896;        /* tone for quoted source text */
+}
+
+/* ══ Global type system ══ */
 *, *::before, *::after {
-    font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif !important;
+}
+
+h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif !important;
+}
+
+[data-testid="stCaptionContainer"] *,
+code, pre,
+[data-testid="stChatInput"] textarea {
+    font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
 }
 
 /* ══ App background ══ */
 .stApp,
 [data-testid="stAppViewContainer"],
 [data-testid="stMain"] {
-    background-color: #050505 !important;
+    background-color: var(--ink) !important;
 }
 
 /* ══ Layout ══ */
 .block-container {
-    max-width: 820px !important;
-    padding-top: 0.6rem !important;
+    max-width: 760px !important;
+    padding-top: 1.2rem !important;
     padding-bottom: 5rem !important;
 }
 
-/* ══ Title glow pulse ══ */
-@keyframes matrixGlow {
-    0%, 100% {
-        text-shadow:
-            0 0 6px rgba(0,255,65,0.6),
-            0 0 14px rgba(0,255,65,0.2);
-    }
-    50% {
-        text-shadow:
-            0 0 14px rgba(0,255,65,1),
-            0 0 35px rgba(0,255,65,0.5),
-            0 0 60px rgba(0,255,65,0.15);
-    }
+/* ══ Masthead: a single, deliberate load-in — title rises, then a rule draws beneath it ══ */
+@keyframes mastheadRise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes mastheadRule {
+    from { width: 0; opacity: 0; }
+    to   { width: 200px; opacity: 1; }
 }
 
 h1 {
-    color: #00ff41 !important;
-    letter-spacing: 4px !important;
+    color: var(--vellum) !important;
+    letter-spacing: 0.14em !important;
     text-transform: uppercase !important;
-    font-weight: 700 !important;
-    animation: matrixGlow 3s ease-in-out infinite !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    animation: mastheadRise 0.7s ease-out both !important;
+}
+
+h1::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 200px;
+    margin: 0.55rem auto 0;
+    background: linear-gradient(90deg, transparent, var(--brass), transparent);
+    animation: mastheadRule 1s 0.35s ease-out both;
 }
 
 h2, h3 {
-    color: #00ff41 !important;
-    letter-spacing: 2px !important;
-    text-transform: uppercase !important;
-    text-shadow: 0 0 6px rgba(0,255,65,0.3) !important;
+    color: var(--brass) !important;
+    letter-spacing: 0.04em !important;
+}
+
+.masthead-subtitle {
+    text-align: center;
+    color: var(--slate) !important;
+    font-style: italic;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    margin-top: -0.3rem;
 }
 
 /* ══ Body text ══ */
 p, li {
-    color: #a8ffb8 !important;
+    color: var(--vellum) !important;
 }
 
 /* ══ Caption ══ */
 [data-testid="stCaptionContainer"] * {
-    color: #2a8040 !important;
-    font-size: 0.71rem !important;
-    letter-spacing: 1px !important;
+    color: var(--slate) !important;
+    font-size: 0.74rem !important;
+    letter-spacing: 0.03em !important;
 }
 
 /* ══ Chat bubbles ══ */
 [data-testid="stChatMessage"] {
-    background: #060d06 !important;
-    border: 1px solid #0d2a0d !important;
-    border-radius: 3px !important;
-    padding: 0.75rem 1rem !important;
-    margin-bottom: 0.45rem !important;
+    background: var(--panel) !important;
+    border: 1px solid var(--hairline) !important;
+    border-radius: 4px !important;
+    padding: 0.85rem 1.1rem !important;
+    margin-bottom: 0.5rem !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 
 [data-testid="stChatMessage"]:hover {
-    border-color: #1a4d1a !important;
-    box-shadow: 0 0 12px rgba(0,255,65,0.04) !important;
+    border-color: #3a4150 !important;
+    box-shadow: 0 0 0 1px rgba(185, 147, 92, 0.08) !important;
 }
 
-/* User: bright green stripe */
+/* User: brass margin rule */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-    border-left: 3px solid #00ff41 !important;
-    background: #040a04 !important;
+    border-left: 3px solid var(--brass) !important;
+    background: #14171e !important;
 }
 
-/* Assistant: mid-green stripe */
+/* Assistant: oxblood margin rule */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
-    border-left: 3px solid #00b32c !important;
-    background: #050d05 !important;
+    border-left: 3px solid var(--oxblood) !important;
+    background: #181b22 !important;
 }
 
 /* Hide user and bot avatars */
@@ -124,200 +158,142 @@ p, li {
 /* ══ Markdown inside messages ══ */
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] li {
-    color: #a8ffb8 !important;
+    color: var(--vellum) !important;
 }
 
 [data-testid="stMarkdownContainer"] strong {
-    color: #00ff41 !important;
+    color: var(--brass) !important;
 }
 
 /* ══ Chat input ══ */
 [data-testid="stChatInput"] {
-    background: #040904 !important;
-    border: 1px solid #0d2a0d !important;
-    border-radius: 3px !important;
+    background: var(--panel-quiet) !important;
+    border: 1px solid var(--hairline) !important;
+    border-radius: 4px !important;
 }
 
 [data-testid="stChatInput"]:focus-within {
-    border-color: #00ff41 !important;
-    box-shadow: 0 0 14px rgba(0,255,65,0.15) !important;
+    border-color: var(--brass) !important;
+    box-shadow: 0 0 0 2px rgba(185, 147, 92, 0.12) !important;
 }
 
 [data-testid="stChatInput"] textarea {
-    color: #00ff41 !important;
-    caret-color: #00ff41 !important;
+    color: var(--vellum) !important;
+    caret-color: var(--brass) !important;
     background: transparent !important;
 }
 
 [data-testid="stChatInput"] textarea::placeholder {
-    color: #1a4d1a !important;
+    color: var(--slate) !important;
 }
 
 [data-testid="stChatInput"] button svg {
-    fill: #00ff41 !important;
+    fill: var(--brass) !important;
 }
 
 /* ══ Sidebar ══ */
 [data-testid="stSidebar"] {
-    background: #020602 !important;
-    border-right: 1px solid #0d2a0d !important;
+    background: var(--panel-quiet) !important;
+    border-right: 1px solid var(--hairline) !important;
 }
 
 [data-testid="stSidebar"] * {
-    color: #00ff41 !important;
+    color: var(--vellum) !important;
+}
+
+[data-testid="stSidebar"] h3 {
+    color: var(--brass) !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown p,
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] * {
-    color: #2a8040 !important;
+    color: var(--slate) !important;
 }
 
 [data-testid="stSidebar"] hr {
-    border-color: #0d2a0d !important;
+    border-color: var(--hairline) !important;
 }
 
 /* Sidebar button */
 [data-testid="stSidebar"] button {
-    background: #020602 !important;
-    border: 1px solid #00ff41 !important;
-    color: #00ff41 !important;
-    border-radius: 2px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 2px !important;
-    font-size: 0.68rem !important;
+    background: transparent !important;
+    border: 1px solid var(--brass) !important;
+    color: var(--brass) !important;
+    border-radius: 3px !important;
+    letter-spacing: 0.03em !important;
+    font-size: 0.82rem !important;
     transition: all 0.2s !important;
 }
 
 [data-testid="stSidebar"] button:hover {
-    background: #003d00 !important;
-    box-shadow: 0 0 14px rgba(0,255,65,0.35) !important;
+    background: rgba(185, 147, 92, 0.1) !important;
 }
 
 /* ══ Info / alert box ══ */
 [data-testid="stAlert"] {
-    background: #020a02 !important;
-    border: 1px solid #0d2a0d !important;
-    border-left: 3px solid #00ff41 !important;
-    border-radius: 3px !important;
+    background: var(--panel) !important;
+    border: 1px solid var(--hairline) !important;
+    border-left: 3px solid var(--brass) !important;
+    border-radius: 4px !important;
 }
 
 [data-testid="stAlert"] * {
-    color: #00ff41 !important;
+    color: var(--vellum) !important;
 }
 
-/* ══ Code blocks (source chunks) ══ */
+/* ══ Code blocks (source excerpts) ══ */
 pre {
-    background: #020802 !important;
-    border: 1px solid #0d2a0d !important;
+    background: var(--panel-quiet) !important;
+    border: 1px solid var(--hairline) !important;
     border-radius: 2px !important;
-    color: #00cc35 !important;
+    color: var(--sepia) !important;
 }
 
 code {
-    background: #020802 !important;
-    color: #00cc35 !important;
+    background: var(--panel-quiet) !important;
+    color: var(--sepia) !important;
 }
 
 /* ══ Expander ══ */
 details > summary {
-    color: #2a7a3a !important;
-    font-size: 0.74rem !important;
-    letter-spacing: 0.5px !important;
+    color: var(--slate) !important;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.02em !important;
+    font-style: italic !important;
     cursor: pointer !important;
 }
 
 details > summary:hover {
-    color: #00b32c !important;
+    color: var(--brass) !important;
 }
 
 /* ══ Divider ══ */
 hr {
-    border-color: #0d2a0d !important;
+    border-color: var(--hairline) !important;
 }
 
 /* ══ Spinner ══ */
 [data-testid="stSpinner"] * {
-    color: #00b32c !important;
+    color: var(--brass) !important;
 }
 
 /* ══ Scrollbar ══ */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #020602; }
-::-webkit-scrollbar-thumb { background: #0d3d0d; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #00ff41; }
+::-webkit-scrollbar-track { background: var(--panel-quiet); }
+::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brass); }
 
-/* ══ Scanlines overlay ══ */
+/* ══ Subtle vignette ══ */
 .stApp::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent 0px,
-        transparent 2px,
-        rgba(0, 0, 0, 0.045) 2px,
-        rgba(0, 0, 0, 0.045) 4px
-    );
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.25) 100%);
     pointer-events: none;
     z-index: 9997;
 }
 </style>
 """, unsafe_allow_html=True)
-
-
-# ── Matrix rain banner ────────────────────────────────────────────────────────
-components.html("""
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #050505; overflow: hidden; }
-  canvas { display: block; width: 100%; }
-</style>
-<canvas id="rain"></canvas>
-<script>
-  const c  = document.getElementById('rain');
-  const cx = c.getContext('2d');
-
-  const FS    = 12;
-  const CHARS = '01アカサタナハABCDEF011010';
-  let cols, drops;
-
-  function resize() {
-    c.width  = document.documentElement.clientWidth || 800;
-    c.height = 64;
-    cols  = Math.floor(c.width / FS);
-    drops = Array.from({ length: cols }, () => Math.random() * -10);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  function draw() {
-    cx.fillStyle = 'rgba(5,5,5,0.14)';
-    cx.fillRect(0, 0, c.width, c.height);
-    cx.font = FS + 'px "Courier New", monospace';
-
-    for (let i = 0; i < cols; i++) {
-      const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
-      const y  = Math.floor(drops[i]) * FS;
-
-      if (y >= 0 && y < c.height) {
-        // Lead char: near-white flash; rest: matrix green
-        cx.fillStyle   = (y < FS) ? '#ccffdd' : '#00ff41';
-        cx.shadowColor = '#00ff41';
-        cx.shadowBlur  = y < FS ? 10 : 4;
-        cx.fillText(ch, i * FS, y + FS);
-        cx.shadowBlur  = 0;
-      }
-
-      if (y > c.height && Math.random() > 0.96) {
-        drops[i] = Math.random() * -8;
-      }
-      drops[i] += 0.65;
-    }
-  }
-
-  setInterval(draw, 48);
-</script>
-""", height=67)
 
 
 # ── Math normalizer ───────────────────────────────────────────────────────────
@@ -410,31 +386,34 @@ rag_chain, retriever = initialize_pipeline()
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### ◈ DOCCHAT")
+    st.markdown("### Research Guide")
     st.markdown("---")
 
     show_sources = st.toggle(
-        "Show source chunks",
+        "Show cited excerpts",
         value=False,
-        help="Reveal the raw document passages used to answer each query.",
+        help="Reveal the source passages the assistant drew on to answer each query.",
     )
 
     st.markdown("---")
-    st.markdown("**// STACK**")
-    st.caption("// LLaMA 3.1-8B · Groq Cloud")
-    st.caption("// FastEmbed · BAAI/bge-small")
-    st.caption("// Qdrant · local vector store")
-    st.caption("// Docling multimodal parser")
+    st.markdown("**Built with**")
+    st.caption("LLaMA 3.1-8B · Groq Cloud")
+    st.caption("FastEmbed · BAAI/bge-small")
+    st.caption("Qdrant · local vector store")
+    st.caption("Docling multimodal parser")
     st.markdown("---")
 
-    if st.button("[ CLEAR MEMORY ]", use_container_width=True):
+    if st.button("Clear conversation", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
 
 
 # ── Title ─────────────────────────────────────────────────────────────────────
-st.title("▶ DOCCHAT.exe")
-st.caption("// RAG DOCUMENT SEARCHER")
+st.title("Research Guide")
+st.markdown(
+    "<p class='masthead-subtitle'>A reading companion for research papers and scholarly texts</p>",
+    unsafe_allow_html=True,
+)
 
 
 # ── Session init ──────────────────────────────────────────────────────────────
@@ -443,9 +422,9 @@ if "messages" not in st.session_state:
 
 if not st.session_state.messages:
     st.info(
-        "**> SYSTEM ONLINE**  \n"
-        "Vector store connected · Awaiting query.  \n"
-        "Type below to begin document analysis."
+        "**Ready when you are.**  \n"
+        "Your document has been indexed and is ready for analysis.  \n"
+        "Ask a question below to begin."
     )
 
 
@@ -453,9 +432,10 @@ if not st.session_state.messages:
 def render_sources(sources: list[str]) -> None:
     if not sources:
         return
-    with st.expander(f"// {len(sources)} CONTEXT CHUNKS RETRIEVED"):
+    label = f"{len(sources)} source excerpt{'s' if len(sources) != 1 else ''} referenced"
+    with st.expander(label):
         for i, chunk in enumerate(sources, 1):
-            st.markdown(f"**[CHUNK {i:02d}]**")
+            st.markdown(f"**Excerpt {i}**")
             preview = chunk[:450] + ("…" if len(chunk) > 450 else "")
             st.code(preview, language=None)
             if i < len(sources):
@@ -471,7 +451,7 @@ for msg in st.session_state.messages:
 
 
 # ── Live input + streaming response ──────────────────────────────────────────
-user_input = st.chat_input("query:// enter search vector…")
+user_input = st.chat_input("Ask a question about the document…")
 
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
@@ -480,7 +460,7 @@ if user_input:
 
     sources: list[str] = []
     if show_sources:
-        with st.spinner("// retrieving context vectors…"):
+        with st.spinner("Retrieving relevant passages…"):
             docs = retriever.invoke(user_input)
             sources = [d.page_content for d in docs]
 
@@ -490,7 +470,7 @@ if user_input:
 
         for chunk in rag_chain.stream(user_input):
             full_text += chunk
-            placeholder.markdown(normalize_math(full_text) + " █")
+            placeholder.markdown(normalize_math(full_text) + " ▌")
 
         placeholder.markdown(normalize_math(full_text))
 

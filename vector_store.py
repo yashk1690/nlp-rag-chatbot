@@ -43,8 +43,8 @@ def build_database(markdown_path: str, collection_name: str):
 
 
 if __name__ == "__main__":
-    md_file = "data/CV_parsed.md"
+    md_file = "data/sample_report_3_parsed.md"
 
-    target_collection = "CV"
+    target_collection = "sample_report_3"
 
     build_database(md_file, target_collection)

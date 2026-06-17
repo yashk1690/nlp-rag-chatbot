@@ -4,9 +4,9 @@
 
 ![Main UI Screenshot](docs/main_ui.png)
 
-> *(Replace `docs/main_ui.png` with your interface screenshot)*
 
-Research Guide is a lightweight, high-performance web terminal built to help you interactively chat with complex documents. It is specifically optimized to handle heavy academic papers, technical reports, and textbooks containing complex LaTeX math, tables, and equations.
+
+Research Guide is a lightweight, RAG based Chatbot built to help you interactively chat with complex documents. It is specifically optimized to handle heavy academic papers, technical reports, and textbooks containing complex LaTeX math, tables, and equations.
 
 ---
 
@@ -14,7 +14,8 @@ Research Guide is a lightweight, high-performance web terminal built to help you
 
 - **Multimodal Parsing:** Uses `docling` to flawlessly extract text, tables, and equations from PDFs without scrambling the underlying formatting.
 - **Local Vector Memory:** Utilizes a local `Qdrant` database and `FastEmbed` (`BAAI/bge-small`) for lightning-fast, private document retrieval without paying for cloud embedding APIs.
-
+- **100% Offline Capability:** Built-in support for seamlessly switching from blazing-fast cloud APIs (Groq) to local models (Ollama) for analyzing highly sensitive or proprietary documents entirely off-grid.
+- **Transparent Sourcing:** Includes an interactive UI toggle to instantly reveal the exact document passages and context chunks the LLM used to generate its answer, ensuring verifiable research.
 
 ---
 
@@ -24,7 +25,7 @@ Research Guide is a lightweight, high-performance web terminal built to help you
 
 You feed a PDF into the system. `Docling` reads it, extracts the text and math, and chunks it into logical paragraphs.
 
-### 2. Embedding
+### 2. Embedding (`vector_store.py`)
 
 `FastEmbed` runs locally on your CPU (or NVIDIA GPU) to convert those text chunks into dense mathematical vectors representing their semantic meaning.
 
@@ -49,31 +50,15 @@ The retrieved chunks are injected into a strict system prompt and sent to an LLM
 Clone the repository and create a clean virtual environment:
 
 ```bash
-git clone https://github.com/yourusername/research-guide.git
-cd research-guide
-
-python -m venv .venv
+git clone https://github.com/yashk1690/nlp-rag-chatbot
 ```
 
-Activate the environment:
 
-**Windows (PowerShell)**
-
-```powershell
-.\.venv\Scripts\activate
-```
-
-**Mac/Linux**
-
-```bash
-source .venv/bin/activate
-```
 
 Install the core dependencies:
 
 ```bash
 pip install -r requirements.txt
-pip install fastembed
 ```
 
 ### Install PyTorch with GPU Acceleration (Windows/NVIDIA)
@@ -135,6 +120,13 @@ Add your target PDF to the data folder and run the ingestion script:
 
 ```bash
 python parser.py
+```
+### Create Vector Embeddings and Store them
+
+Add path to store the vector embeddings and run the script:
+
+```bash
+python vector_store.py
 ```
 
 ### Start the Server

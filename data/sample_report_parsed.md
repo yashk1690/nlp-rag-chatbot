@@ -131,7 +131,7 @@ q = probability the attacker finds the next block
 
 q z = probability the attacker will ever catch up from z blocks behind
 
-<!-- formula-not-decoded -->
+$$q _ { z } = \begin{cases} 1 & i f \, p \leq q \\ ( q l \, p ) ^ { z } & i f \, p > q \end{cases}$$
 
 Given our assumption that p &gt; q , the probability drops exponentially as the number of blocks the attacker has to catch up with increases.  With the odds against him, if he doesn't make a lucky lunge forward early on, his chances become vanishingly small as he falls further behind.
 
@@ -141,15 +141,15 @@ The receiver generates a new key pair and gives the public key to the sender sho
 
 The recipient waits until the transaction has been added to a block and z blocks have been linked after it.   He doesn't know the exact amount of progress the attacker has made, but assuming the honest blocks took the average expected time per block, the attacker's potential progress will be a Poisson distribution with expected value:
 
-<!-- formula-not-decoded -->
+$$\lambda = z \frac { q } { p }$$
 
 To get the probability the attacker could still catch up now, we multiply the Poisson density for each amount of progress he could have made by the probability he could catch up from that point:
 
-<!-- formula-not-decoded -->
+$$\sum _ { k = 0 } ^ { \infty } \frac { \lambda ^ { k } e ^ { - \lambda } } { k ! } . \begin{cases} ( q / p ) ^ { ( z - k ) } & i f k \leq z \\ 1 & i f k > z \end{cases}$$
 
 Rearranging to avoid summing the infinite tail of the distribution...
 
-<!-- formula-not-decoded -->
+$$1 - \sum _ { k = 0 } ^ { \varepsilon } \frac { \lambda ^ { k } \, e ^ { - \lambda } } { k ! } ( 1 - ( q / p ) ^ { ( z - k ) } )$$
 
 Converting to C code...
 

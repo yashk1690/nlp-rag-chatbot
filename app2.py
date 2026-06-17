@@ -53,6 +53,16 @@ code, pre,
     font-family: 'IBM Plex Mono', 'Courier New', monospace !important;
 }
 
+/* Streamlit's built-in icons (chat avatars, expander arrows, toggle marks,
+   alert glyphs, etc.) are rendered as ligature text in a Material Symbols
+   font. The global serif override above breaks that font, which makes the
+   raw icon names ("face", "smart_toy", "keyboard_arrow_right"...) show up
+   as literal, overlapping text. This restores the icon font specifically
+   for those elements so the icons render as glyphs again. */
+[data-testid="stIconMaterial"] {
+    font-family: 'Material Symbols Rounded', 'Material Icons' !important;
+}
+
 /* ══ App background ══ */
 .stApp,
 [data-testid="stAppViewContainer"],
@@ -137,21 +147,30 @@ p, li {
     box-shadow: 0 0 0 1px rgba(185, 147, 92, 0.08) !important;
 }
 
-/* User: brass margin rule */
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+/* User: brass margin rule. The testid match is duplicated with a
+   case-insensitive substring selector as a fallback, since Streamlit has
+   renamed these internal testids across versions before. */
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
+[data-testid="stChatMessage"]:has([data-testid*="avatar-user" i]),
+[data-testid="stChatMessage"]:has([data-testid*="AvatarUser" i]) {
     border-left: 3px solid var(--brass) !important;
     background: #14171e !important;
 }
 
-/* Assistant: oxblood margin rule */
-[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+/* Assistant: oxblood margin rule (same fallback strategy as above) */
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]),
+[data-testid="stChatMessage"]:has([data-testid*="avatar-assistant" i]),
+[data-testid="stChatMessage"]:has([data-testid*="AvatarAssistant" i]) {
     border-left: 3px solid var(--oxblood) !important;
     background: #181b22 !important;
 }
 
-/* Hide user and bot avatars */
+/* Hide user and bot avatars. The broad "contains Avatar" rule is a
+   catch-all so this keeps working even if Streamlit renames the
+   specific testid in a future release. */
 [data-testid="chatAvatarIcon-user"],
-[data-testid="chatAvatarIcon-assistant"] {
+[data-testid="chatAvatarIcon-assistant"],
+[data-testid="stChatMessage"] [data-testid*="Avatar" i] {
     display: none !important;
 }
 

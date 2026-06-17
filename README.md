@@ -86,7 +86,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ---
 
-## ⚙️ Configure Your LLM Engine
+## Configure Your LLM Engine
 
 You can run this project using a cloud API for raw speed or entirely offline for maximum privacy.
 
@@ -127,7 +127,7 @@ llm = ChatOllama(
 
 ---
 
-## ▶️ Run the System
+## Run the System
 
 ### Parse a Document
 
@@ -157,7 +157,7 @@ You can now interact with your documents through the chat interface.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Component | Technology |
 |------------|------------|
@@ -170,7 +170,7 @@ You can now interact with your documents through the chat interface.
 
 ---
 
-## 📌 Architecture Overview
+## Architecture Overview
 
 ```text
 PDF

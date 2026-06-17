@@ -27,7 +27,7 @@ def initialize_pipeline():
 
     vector_store = QdrantVectorStore.from_existing_collection(
         embedding=embeddings,
-        collection_name="sample_report_1",
+        collection_name="CV",
         path="qdrant_db",
     )
 
